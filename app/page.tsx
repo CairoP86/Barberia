@@ -6,7 +6,7 @@ import { Playfair_Display } from "next/font/google";
 
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
 
-// ✅ Agregamos definición global para evitar el error de `any`
+// ✅ Definición para evitar error con window.touchStartX
 declare global {
   interface Window {
     touchStartX?: number;
@@ -14,12 +14,17 @@ declare global {
 }
 
 export default function Home() {
+  // ---------------------------
+  // Estados
+  // ---------------------------
+  const [isOpen, setIsOpen] = useState(false); // menú hamburguesa
   const [nombre, setNombre] = useState<string>("");
   const [telefono, setTelefono] = useState<string>("");
   const [servicio, setServicio] = useState<string>("");
   const [fecha, setFecha] = useState<string>("");
   const [hora, setHora] = useState<string>("");
 
+  // Opciones de reservas
   const serviciosReserva = [
     "Corte",
     "Corte + Barba",
@@ -27,22 +32,18 @@ export default function Home() {
     "Solo Cejas",
     "Solo Barba",
   ];
-
   const horasDisponibles = Array.from({ length: 12 }, (_, i) => 9 + i).map(
     (h) => `${h}:00`
   );
 
+  // Enviar reserva por WhatsApp
   const reservar = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const mensaje = `Hola, quiero reservar:\n
-    Cliente: ${nombre}\n
-    Tel: ${telefono}\n
-    Servicio: ${servicio}\n
-    Día: ${fecha}\n
-    Hora: ${hora}`;
+    const mensaje = `Hola, quiero reservar:\nCliente: ${nombre}\nTel: ${telefono}\nServicio: ${servicio}\nDía: ${fecha}\nHora: ${hora}`;
     window.open(`https://wa.me/50686084560?text=${encodeURIComponent(mensaje)}`);
   };
 
+  // Servicios de la barbería
   const servicios = [
     { nombre: "Corte", precio: "₡6,000", descripcion: "Corte clásico o moderno, lavado, secado y peinado." },
     { nombre: "Corte + Barba", precio: "₡8,000", descripcion: "Incluye diseño de barba, toalla caliente y productos premium." },
@@ -55,7 +56,9 @@ export default function Home() {
     nombre: string; precio: string; descripcion: string;
   } | null>(null);
 
-  // ✅ Galería
+  // ---------------------------
+  // Galería
+  // ---------------------------
   const imagenes = ["/galeria1.jpg", "/galeria2.jpg", "/galeria3.jpg", "/galeria4.jpg"];
   const [index, setIndex] = useState<number>(0);
 
@@ -70,14 +73,21 @@ export default function Home() {
   }, [imagenes.length]);
 
   return (
-    <main className={`${playfair.variable} font-sans bg-black text-white`}>
-      {/* NAVBAR */}
+    <main className={`${playfair.variable} font-sans bg-black text-white overflow-x-hidden`}>
+      {/* =====================================================
+          NAVBAR
+      ===================================================== */}
       <header className="fixed top-0 left-0 w-full bg-black bg-opacity-80 backdrop-blur-md z-50 shadow-md">
         <nav className="max-w-6xl mx-auto flex justify-between items-center p-4">
+          {/* Logo + nombre */}
           <div className="flex items-center gap-2">
             <Image src="/logo.jpg" alt="TavoBarber Logo" width={40} height={40} />
-            <span className="text-xl font-extrabold uppercase tracking-widest">TavoBarber</span>
+            <span className="text-xl font-extrabold uppercase tracking-widest whitespace-nowrap">
+              TavoBarber
+            </span>
           </div>
+
+          {/* Menú escritorio */}
           <ul className="hidden md:flex gap-6 font-semibold">
             <li><a href="#servicios" className="hover:text-yellow-400 transition">Servicios</a></li>
             <li><a href="#reservas" className="hover:text-yellow-400 transition">Reservas</a></li>
@@ -85,35 +95,89 @@ export default function Home() {
             <li><a href="#galeria" className="hover:text-yellow-400 transition">Galería</a></li>
             <li><a href="#contacto" className="hover:text-yellow-400 transition">Contacto</a></li>
           </ul>
+
+          {/* Botón hamburguesa móvil */}
+          <button
+            className="md:hidden text-2xl focus:outline-none"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            ☰
+          </button>
         </nav>
+
+        {/* Menú móvil desplegable */}
+        {isOpen && (
+          <div className="md:hidden bg-black text-white p-6 space-y-4 text-center">
+            <a href="#servicios" onClick={() => setIsOpen(false)} className="block hover:text-yellow-400">Servicios</a>
+            <a href="#reservas" onClick={() => setIsOpen(false)} className="block hover:text-yellow-400">Reservas</a>
+            <a href="#testimonios" onClick={() => setIsOpen(false)} className="block hover:text-yellow-400">Testimonios</a>
+            <a href="#galeria" onClick={() => setIsOpen(false)} className="block hover:text-yellow-400">Galería</a>
+            <a href="#contacto" onClick={() => setIsOpen(false)} className="block hover:text-yellow-400">Contacto</a>
+          </div>
+        )}
       </header>
 
-      {/* HERO */}
-      <section className="relative h-screen flex items-center justify-center" id="top">
-        <Image src="/barberia.jpg" alt="Barbería TavoBarber" fill className="object-cover brightness-50" />
-        <div className="relative text-center animate-fadeIn">
-          <h1 className="text-5xl md:text-7xl font-extrabold uppercase drop-shadow-lg">TavoBarber_CustomCuts</h1>
-          <p className="mt-4 text-lg tracking-widest text-gray-300">Custom Cuts & Premium Style ✂️🔥</p>
-          <a href="#reservas" className="mt-6 inline-block px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-700 rounded-lg font-bold hover:scale-105 transition">Reservar Ahora</a>
+      {/* =====================================================
+          HERO
+      ===================================================== */}
+      <section className="relative h-[100dvh] flex items-center justify-center" id="top">
+        <Image src="/barberia.jpg" alt="Barbería TavoBarber" fill className="object-cover brightness-50" priority />
+        <div className="relative text-center animate-fadeIn px-4">
+          <h1 className="text-4xl md:text-7xl font-extrabold uppercase drop-shadow-lg break-words">
+            TavoBarber_CustomCuts
+          </h1>
+          <p className="mt-4 text-base md:text-lg tracking-widest text-gray-300">
+            Custom Cuts & Premium Style ✂️🔥
+          </p>
+          <a
+            href="#reservas"
+            className="mt-6 inline-block px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-700 rounded-lg font-bold hover:scale-105 transition"
+          >
+            Reservar Ahora
+          </a>
         </div>
       </section>
 
-      {/* PRESENTACIÓN */}
-      <section className="bg-[#f9f6ef] text-center py-16 px-6 text-black">
-        <h2 className="text-4xl md:text-5xl font-extrabold uppercase mb-6">
-          NO SOLO UN <span className="text-yellow-600">CORTE</span>, UNA EXPERIENCIA
-        </h2>
-        <p className="max-w-3xl mx-auto mb-4">Somos una barbería <b>Old School</b> en donde lo más importante es que vivas una experiencia única.</p>
-        <a href="#reservas" className="px-6 py-3 bg-yellow-600 text-white font-bold rounded-lg shadow hover:bg-yellow-700 transition">PROGRAME SU CITA</a>
-      </section>
+      {/* =====================================================
+    PRESENTACIÓN
+===================================================== */}
+<section className="bg-[#f9f6ef] text-center py-16 px-6 text-black">
+  <h2 className="text-4xl md:text-5xl font-extrabold uppercase mb-6">
+    NO SOLO UN <span className="text-yellow-600">CORTE</span>, UNA EXPERIENCIA
+  </h2>
 
-      {/* SERVICIOS */}
+  <p className="max-w-3xl mx-auto mb-4">
+    Somos una barbería <b>Old School</b> en donde lo más importante es que vivas una experiencia única.  
+    Hemos creado un ambiente en donde nuestros clientes se pueden relajar y escuchar buena música.
+  </p>
+
+  <p className="max-w-3xl mx-auto mb-8">
+    Nuestro lema refleja nuestra filosofía de trabajo: ofrecer siempre un servicio de calidad que combine estilo, precisión y comodidad,  
+    para que cada cliente se sienta especial.
+  </p>
+
+  <a
+    href="#reservas"
+    className="px-6 py-3 bg-yellow-600 text-white font-bold rounded-lg shadow hover:bg-yellow-700 transition"
+  >
+    PROGRAME SU CITA
+  </a>
+</section>
+
+
+      {/* =====================================================
+          SERVICIOS
+      ===================================================== */}
       <section id="servicios" className="bg-black text-white py-16">
         <div className="max-w-6xl mx-auto px-6 text-center">
           <h2 className="text-4xl font-extrabold uppercase mb-4">Nuestros Servicios</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {servicios.map((s, i) => (
-              <div key={i} className="bg-black border border-yellow-600 rounded-xl p-6 shadow-xl hover:scale-105 transition cursor-pointer" onClick={() => setServicioSeleccionado(s)}>
+              <div
+                key={i}
+                className="bg-black border border-yellow-600 rounded-xl p-6 shadow-xl hover:scale-105 transition cursor-pointer"
+                onClick={() => setServicioSeleccionado(s)}
+              >
                 <h3 className="text-xl font-bold mb-2">{s.nombre}</h3>
                 <p className="text-lg text-yellow-400 mb-4">{s.precio}</p>
                 <p className="text-gray-300 text-sm">{s.descripcion}</p>
@@ -123,7 +187,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* MODAL */}
+      {/* =====================================================
+          MODAL DE SERVICIO
+      ===================================================== */}
       {servicioSeleccionado && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
           <div className="bg-white text-black rounded-lg shadow-xl p-6 max-w-sm w-full">
@@ -137,7 +203,9 @@ export default function Home() {
         </div>
       )}
 
-      {/* RESERVAS */}
+      {/* =====================================================
+          RESERVAS
+      ===================================================== */}
       <section id="reservas" className="bg-gray-900 py-16">
         <div className="max-w-4xl mx-auto px-6">
           <h2 className="text-3xl font-extrabold text-center mb-8 uppercase">Reserva tu cita</h2>
@@ -158,7 +226,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* TESTIMONIOS */}
+      {/* =====================================================
+          TESTIMONIOS
+      ===================================================== */}
       <section id="testimonios" className="bg-black text-white py-16">
         <div className="max-w-6xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-extrabold mb-6 uppercase text-yellow-500">Lo que dicen nuestros clientes</h2>
@@ -168,14 +238,16 @@ export default function Home() {
               <h4 className="font-bold text-yellow-400">– Andrés Ramírez</h4>
             </div>
             <div className="border border-yellow-500 rounded-xl p-6 shadow-md bg-gray-900 hover:shadow-yellow-500/20 transition">
-              <p className="italic text-gray-300 mb-4">“Los visito mensualmente y siempre salgo satisfecho. Personal muy amable y conocedor.”</p>
+              <p className="italic text-gray-300 mb-4">“Los visito semanal y siempre salgo satisfecho. Personal muy amable y conocedor.”</p>
               <h4 className="font-bold text-yellow-400">– Luis Calderón</h4>
             </div>
           </div>
         </div>
       </section>
 
-      {/* GALERÍA */}
+      {/* =====================================================
+          GALERÍA
+      ===================================================== */}
       <section id="galeria" className="bg-black py-12">
         <h2 className="text-3xl font-extrabold text-center mb-8 uppercase text-yellow-500">Galería</h2>
         <div
@@ -188,14 +260,20 @@ export default function Home() {
             else if (endX - startX > 50) prev();
           }}
         >
-          <Image src={imagenes[index]} alt={`Imagen ${index + 1}`} width={800} height={500} className="w-full h-[500px] object-contain rounded-lg" />
+          <Image src={imagenes[index]} alt={`Imagen ${index + 1}`} width={800} height={500} className="w-full h-[250px] md:h-[500px] object-contain rounded-lg" />
           <button onClick={prev} className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black transition">◀</button>
           <button onClick={next} className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black transition">▶</button>
-          <div className="flex justify-center gap-2 mt-4">{imagenes.map((_, i) => (<span key={i} className={`w-3 h-3 rounded-full ${i === index ? "bg-yellow-500" : "bg-gray-600"}`} />))}</div>
+          <div className="flex justify-center gap-2 mt-4">
+            {imagenes.map((_, i) => (
+              <span key={i} className={`w-3 h-3 rounded-full ${i === index ? "bg-yellow-500" : "bg-gray-600"}`} />
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* CONTACTO */}
+      {/* =====================================================
+          CONTACTO
+      ===================================================== */}
       <section id="contacto" className="bg-black py-12 text-center">
         <h2 className="text-2xl font-bold mb-4 uppercase">Contáctanos</h2>
         <p className="text-gray-400 mb-6">📍 Guanacaste, Liberia, Barrio Condega, 50 m sur de Casa Calá</p>
@@ -216,7 +294,9 @@ export default function Home() {
         ></iframe>
       </section>
 
-      {/* FOOTER */}
+      {/* =====================================================
+          FOOTER
+      ===================================================== */}
       <footer className="bg-black text-white py-10">
         <div className="max-w-6xl mx-auto flex flex-col items-center gap-6">
           <h3 className="text-2xl font-extrabold">TavoBarber_CustomCuts</h3>
@@ -229,7 +309,7 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* BOTÓN WHATSAPP */}
+      {/* Botón flotante WhatsApp */}
       <a href="https://wa.me/50686084560" target="_blank" className="fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:scale-110 transition">
         <FaWhatsapp size={28} />
       </a>
