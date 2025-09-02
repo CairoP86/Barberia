@@ -6,6 +6,13 @@ import { Playfair_Display } from "next/font/google";
 
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
 
+// ✅ Agregamos definición global para evitar el error de `any`
+declare global {
+  interface Window {
+    touchStartX?: number;
+  }
+}
+
 export default function Home() {
   const [nombre, setNombre] = useState<string>("");
   const [telefono, setTelefono] = useState<string>("");
@@ -48,6 +55,7 @@ export default function Home() {
     nombre: string; precio: string; descripcion: string;
   } | null>(null);
 
+  // ✅ Galería
   const imagenes = ["/galeria1.jpg", "/galeria2.jpg", "/galeria3.jpg", "/galeria4.jpg"];
   const [index, setIndex] = useState<number>(0);
 
@@ -67,13 +75,14 @@ export default function Home() {
       <header className="fixed top-0 left-0 w-full bg-black bg-opacity-80 backdrop-blur-md z-50 shadow-md">
         <nav className="max-w-6xl mx-auto flex justify-between items-center p-4">
           <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="TavoBarber Logo" width={40} height={40} />
+            <Image src="/logo.jpg" alt="TavoBarber Logo" width={40} height={40} />
             <span className="text-xl font-extrabold uppercase tracking-widest">TavoBarber</span>
           </div>
           <ul className="hidden md:flex gap-6 font-semibold">
             <li><a href="#servicios" className="hover:text-yellow-400 transition">Servicios</a></li>
             <li><a href="#reservas" className="hover:text-yellow-400 transition">Reservas</a></li>
             <li><a href="#testimonios" className="hover:text-yellow-400 transition">Testimonios</a></li>
+            <li><a href="#galeria" className="hover:text-yellow-400 transition">Galería</a></li>
             <li><a href="#contacto" className="hover:text-yellow-400 transition">Contacto</a></li>
           </ul>
         </nav>
@@ -94,7 +103,7 @@ export default function Home() {
         <h2 className="text-4xl md:text-5xl font-extrabold uppercase mb-6">
           NO SOLO UN <span className="text-yellow-600">CORTE</span>, UNA EXPERIENCIA
         </h2>
-        <p className="max-w-3xl mx-auto mb-4">Somos una barbería <b>Old School</b> en donde lo más importante es que vivas una experiencia única. Creamos un ambiente para relajarte y disfrutar buena música.</p>
+        <p className="max-w-3xl mx-auto mb-4">Somos una barbería <b>Old School</b> en donde lo más importante es que vivas una experiencia única.</p>
         <a href="#reservas" className="px-6 py-3 bg-yellow-600 text-white font-bold rounded-lg shadow hover:bg-yellow-700 transition">PROGRAME SU CITA</a>
       </section>
 
@@ -148,89 +157,43 @@ export default function Home() {
           </form>
         </div>
       </section>
-      {/* =====================================================
-    TESTIMONIOS
-===================================================== */}
-<section id="testimonios" className="bg-black text-white py-16">
-  <div className="max-w-6xl mx-auto px-6 text-center">
-    <h2 className="text-3xl font-extrabold mb-6 uppercase text-yellow-500">
-      Lo que dicen nuestros clientes
-    </h2>
-    <div className="grid md:grid-cols-2 gap-8">
-      <div className="border border-yellow-500 rounded-xl p-6 shadow-md bg-gray-900 hover:shadow-yellow-500/20 transition">
-        <p className="italic text-gray-300 mb-4">
-          “Excelente servicio personalizado, fácil reservar por WhatsApp.
-          Muy preciso y el resultado genial.”
-        </p>
-        <h4 className="font-bold text-yellow-400">– Andrés Ramírez</h4>
-      </div>
-      <div className="border border-yellow-500 rounded-xl p-6 shadow-md bg-gray-900 hover:shadow-yellow-500/20 transition">
-        <p className="italic text-gray-300 mb-4">
-          “Los visito mensualmente y siempre salgo satisfecho. Personal
-          muy amable y conocedor.”
-        </p>
-        <h4 className="font-bold text-yellow-400">– Luis Calderón</h4>
-      </div>
-    </div>
-  </div>
-</section>
 
-{/* =====================================================
-    GALERÍA
-===================================================== */}
-<section id="galeria" className="bg-black py-12">
-  <h2 className="text-3xl font-extrabold text-center mb-8 uppercase text-yellow-500">
-    Galería
-  </h2>
+      {/* TESTIMONIOS */}
+      <section id="testimonios" className="bg-black text-white py-16">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <h2 className="text-3xl font-extrabold mb-6 uppercase text-yellow-500">Lo que dicen nuestros clientes</h2>
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="border border-yellow-500 rounded-xl p-6 shadow-md bg-gray-900 hover:shadow-yellow-500/20 transition">
+              <p className="italic text-gray-300 mb-4">“Excelente servicio personalizado, fácil reservar por WhatsApp. Muy preciso y el resultado genial.”</p>
+              <h4 className="font-bold text-yellow-400">– Andrés Ramírez</h4>
+            </div>
+            <div className="border border-yellow-500 rounded-xl p-6 shadow-md bg-gray-900 hover:shadow-yellow-500/20 transition">
+              <p className="italic text-gray-300 mb-4">“Los visito mensualmente y siempre salgo satisfecho. Personal muy amable y conocedor.”</p>
+              <h4 className="font-bold text-yellow-400">– Luis Calderón</h4>
+            </div>
+          </div>
+        </div>
+      </section>
 
-  <div
-    className="relative max-w-4xl mx-auto"
-    onTouchStart={(e) => { (window as any).touchStartX = e.touches[0].clientX; }}
-    onTouchEnd={(e) => {
-      const startX = (window as any).touchStartX ?? 0;
-      const endX = e.changedTouches[0].clientX;
-      if (startX - endX > 50) next();
-      else if (endX - startX > 50) prev();
-    }}
-  >
-    <Image
-      src={imagenes[index]}
-      alt={`Imagen ${index + 1}`}
-      width={800}
-      height={500}
-      className="w-full h-[500px] object-contain rounded-lg"
-    />
-
-    {/* Botón anterior */}
-    <button
-      onClick={prev}
-      className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black transition"
-    >
-      ◀
-    </button>
-
-    {/* Botón siguiente */}
-    <button
-      onClick={next}
-      className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black transition"
-    >
-      ▶
-    </button>
-
-    {/* Indicadores */}
-    <div className="flex justify-center gap-2 mt-4">
-      {imagenes.map((_, i) => (
-        <span
-          key={i}
-          className={`w-3 h-3 rounded-full ${
-            i === index ? "bg-yellow-500" : "bg-gray-600"
-          }`}
-        />
-      ))}
-    </div>
-  </div>
-</section>
-
+      {/* GALERÍA */}
+      <section id="galeria" className="bg-black py-12">
+        <h2 className="text-3xl font-extrabold text-center mb-8 uppercase text-yellow-500">Galería</h2>
+        <div
+          className="relative max-w-4xl mx-auto"
+          onTouchStart={(e) => { window.touchStartX = e.touches[0].clientX; }}
+          onTouchEnd={(e) => {
+            const startX = window.touchStartX ?? 0;
+            const endX = e.changedTouches[0].clientX;
+            if (startX - endX > 50) next();
+            else if (endX - startX > 50) prev();
+          }}
+        >
+          <Image src={imagenes[index]} alt={`Imagen ${index + 1}`} width={800} height={500} className="w-full h-[500px] object-contain rounded-lg" />
+          <button onClick={prev} className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black transition">◀</button>
+          <button onClick={next} className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black transition">▶</button>
+          <div className="flex justify-center gap-2 mt-4">{imagenes.map((_, i) => (<span key={i} className={`w-3 h-3 rounded-full ${i === index ? "bg-yellow-500" : "bg-gray-600"}`} />))}</div>
+        </div>
+      </section>
 
       {/* CONTACTO */}
       <section id="contacto" className="bg-black py-12 text-center">
@@ -273,4 +236,5 @@ export default function Home() {
     </main>
   );
 }
+
 
