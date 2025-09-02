@@ -175,6 +175,62 @@ export default function Home() {
   </div>
 </section>
 
+{/* =====================================================
+    GALERÍA
+===================================================== */}
+<section id="galeria" className="bg-black py-12">
+  <h2 className="text-3xl font-extrabold text-center mb-8 uppercase text-yellow-500">
+    Galería
+  </h2>
+
+  <div
+    className="relative max-w-4xl mx-auto"
+    onTouchStart={(e) => { (window as any).touchStartX = e.touches[0].clientX; }}
+    onTouchEnd={(e) => {
+      const startX = (window as any).touchStartX ?? 0;
+      const endX = e.changedTouches[0].clientX;
+      if (startX - endX > 50) next();
+      else if (endX - startX > 50) prev();
+    }}
+  >
+    <Image
+      src={imagenes[index]}
+      alt={`Imagen ${index + 1}`}
+      width={800}
+      height={500}
+      className="w-full h-[500px] object-contain rounded-lg"
+    />
+
+    {/* Botón anterior */}
+    <button
+      onClick={prev}
+      className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black transition"
+    >
+      ◀
+    </button>
+
+    {/* Botón siguiente */}
+    <button
+      onClick={next}
+      className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black transition"
+    >
+      ▶
+    </button>
+
+    {/* Indicadores */}
+    <div className="flex justify-center gap-2 mt-4">
+      {imagenes.map((_, i) => (
+        <span
+          key={i}
+          className={`w-3 h-3 rounded-full ${
+            i === index ? "bg-yellow-500" : "bg-gray-600"
+          }`}
+        />
+      ))}
+    </div>
+  </div>
+</section>
+
 
       {/* CONTACTO */}
       <section id="contacto" className="bg-black py-12 text-center">
@@ -217,6 +273,4 @@ export default function Home() {
     </main>
   );
 }
-
-
 
